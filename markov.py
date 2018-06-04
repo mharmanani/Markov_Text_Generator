@@ -1,3 +1,5 @@
+ROOT = 'datasets'
+
 class MarkovTextBot:
 	""" A probabilistic text generator that uses Markov Chains
 	to model relations between words
@@ -6,8 +8,8 @@ class MarkovTextBot:
 		""" Initalizes a MarkovTextBot with a file handler,
 		a file name, and a markov chain
 		"""
-		self.data = open(file)
-		self.file = file
+		self.data = open(ROOT + file)
+		self.file = ROOT + file
 		self.chart = {}
 
 		for line in self.data:
@@ -40,7 +42,11 @@ class MarkovTextBot:
 		"""
 		import random
 		# set the first word of the sentence
-		if not seed: line = [random.choice(list(self.chart.keys()))]
+		if not seed: 
+			first_word = random.choice(list(self.chart.keys()))
+			while first_word[0].islower():
+				first_word = random.choice(list(self.chart.keys()))
+			line = [first_word]
 		else: line = [seed]
 
 		while len(line) < words: # generate the rest of the text

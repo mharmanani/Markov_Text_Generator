@@ -1,15 +1,13 @@
-ROOT = 'datasets'
-
 class MarkovTextBot:
 	""" A probabilistic text generator that uses Markov Chains
 	to model relations between words
 	"""
-	def __init__(self, file):
+	def __init__(self, file, path=""):
 		""" Initalizes a MarkovTextBot with a file handler,
 		a file name, and a markov chain
 		"""
-		self.data = open(ROOT + file)
-		self.file = ROOT + file
+		self.data = open(path + file)
+		self.file = path + file
 		self.chart = {}
 
 		for line in self.data:
@@ -37,24 +35,36 @@ class MarkovTextBot:
 
 
 	def generate_text(self, words, seed=None):
-		""" Generate a text with 'words' words in it,
+		""" Generate a text with at least 'words' words in it,
 		starting with 'seed' if the parameter is set
 		"""
 		import random
 		# set the first word of the sentence
 		if not seed: 
 			first_word = random.choice(list(self.chart.keys()))
-			while first_word[0].islower():
+			# loop to make sure sentence does not begin awkwardly 
+			while first_word[0].islower() or not first_word[0].isalpha():
 				first_word = random.choice(list(self.chart.keys()))
 			line = [first_word]
 		else: line = [seed]
 
-		while len(line) < words: # generate the rest of the text
+		# generate the rest of the text probabilistically
+		while len(line) < words:
 			prev_word = line[-1]
 			transitions = self.chart[prev_word]
 			if transitions:
-				next_word = random.choice(self.chart[prev_word])
+				next_word = random.choice(transitions)
 				line += [next_word]
+			else: break
+
+		# another loop to ensure the paragraph does not end abruptly
+		# might go over word count
+		final_word = line[-1] 
+		while final_word[-1] not in '.!?':
+			transitions = self.chart[final_word]
+			if transitions: 
+				final_word = random.choice(transitions)
+				line += [final_word]
 			else: break
 		return ' '.join(line)
 
